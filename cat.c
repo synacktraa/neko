@@ -4,7 +4,8 @@
 
 #define BUFFER 128
 
-static char *basename(const char *path){
+static char*
+basename(const char *path){
     char fsep = 0;
     #ifdef __unix__
         fsep = '/'; 
@@ -20,7 +21,8 @@ static char *basename(const char *path){
 
 }
 
-static long getbuf(const char *file){
+static long 
+getbuf(const char *file){
 
     FILE* fptr = fopen(file, "r");
     if (fptr == NULL) {
@@ -39,7 +41,8 @@ static long getbuf(const char *file){
 }
 
 
-static int fexists(const char * file) {
+static int 
+fexists(const char * file) {
 
     FILE *fptr;
     if((fptr = fopen(file, "r")) != NULL) {
@@ -50,7 +53,8 @@ static int fexists(const char * file) {
 }
 
 
-static void cat(const char*file, const int lflag, const int sflag) {
+static void 
+cat(const char*file, const int lflag, const int sflag) {
 
     char *pline = NULL;
     if(lflag)
@@ -59,12 +63,14 @@ static void cat(const char*file, const int lflag, const int sflag) {
     long buflen = getbuf(file);
     
     FILE * fptr = fopen(file, "r");
-    char* buffer = (char*)malloc(sizeof(char) * buflen);
+    char* buffer = (char*)malloc(buflen);
     
-    if(buffer == NULL) exit(1);
+    if(buffer == NULL) exit(EXIT_FAILURE);
+    memset(buffer, 0, buflen);
 
     int i = 0, s = 0;
 
+    rewind(fptr);
     while (fgets(buffer, buflen, fptr) != NULL){
         if(sflag && (buffer[0] == 10 || buffer[0] == 13)){
             if(s >= 1)
@@ -79,7 +85,8 @@ static void cat(const char*file, const int lflag, const int sflag) {
     free(buffer);
 }
 
-static int arg_validate(const char* arg){
+static int 
+arg_validate(const char* arg){
     if(!strncmp(arg, "-n", 2)||
        !strncmp(arg, "-s", 2)){
             return 1;
@@ -87,7 +94,8 @@ static int arg_validate(const char* arg){
     return 0;
 }
 
-static void help(){
+static void 
+help(){
     puts("Usage: cat [OPTION]... [FILE]...\
         \nConcatenate FILE to standard output.\
         \n\nOptions:\
@@ -98,7 +106,8 @@ static void help(){
         \n    cat -sn file  Output file's contents with line numbers after stripping repeated empty lines");
 }
 
-int main(int argc, char**argv) {
+int 
+main(int argc, char**argv) {
 
     char *file = NULL, inout[BUFFER];
     int lflag = 0, sflag = 0;
