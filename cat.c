@@ -49,7 +49,7 @@ static int fexists(const char * file) {
 
 static void cat(char*file, int lflag) {
 
-    char *pline = NULL, *end=NULL;
+    char *pline = NULL;
     if(lflag)
         pline = "%*d  ";
     
@@ -81,7 +81,7 @@ static int arg_validate(char* arg){
 int main(int argc, char**argv) {
 
     char *file = NULL;
-    int lflag = 0, Eflag = 0;
+    int lflag = 0;
     if (argc == 2){
         if(!arg_validate(argv[1]))
             file = argv[1];
