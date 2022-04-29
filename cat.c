@@ -47,20 +47,20 @@ static int fexists(const char * file) {
 }
 
 
-static void cat(char*file, int lflag, int sflag) {
+static void cat(const char*file, const int lflag, const int sflag) {
 
     char *pline = NULL;
     if(lflag)
-        pline = "%*d  ";
+        pline = "\033[31m%*d\033[0m  ";
     
-    int buflen = getbuf(file);
+    const int buflen = getbuf(file);
     
     FILE * fptr = fopen(file, "r");
     char* buffer = (char*)malloc(sizeof(char) * buflen);
     
     if(buffer == NULL) exit(1);
 
-    int i = 1, s = 0;
+    int i = 0, s = 0;
 
     while (fgets(buffer, buflen, fptr) != NULL){
         if(sflag && (buffer[0] == 10 || buffer[0] == 13)){
@@ -68,18 +68,17 @@ static void cat(char*file, int lflag, int sflag) {
                 continue;
             s++;
         }
-        fprintf(stdout, pline, 6, i);
+        fprintf(stdout, pline, 6, ++i);
         fprintf(stdout, "%s", buffer);
         if((buffer[0] != 10 && buffer[0] != 13))
             s = 0;
-        ++i;
     } 
     free(buffer);
 }
 
-static int arg_validate(char* arg){
-    if(!strcmp(arg, "-n")||
-       !strcmp(arg, "-s")){
+static int arg_validate(const char* arg){
+    if(!strncmp(arg, "-n", 2)||
+       !strncmp(arg, "-s", 2)){
             return 1;
         }
     return 0;
@@ -101,7 +100,7 @@ int main(int argc, char**argv) {
     char *file = NULL;
     int lflag = 0, sflag = 0;
     if (argc == 2){
-        if(!strcmp(argv[1], "-h")){
+        if(!strncmp(argv[1], "-h", 2)){
             help();
             return 0;
         }
@@ -109,11 +108,11 @@ int main(int argc, char**argv) {
             file = argv[1];
     } else if (argc > 2 && argc <= 4){
         for(int i = 1; i < argc; i++){
-            if(!strcmp(argv[i], "-n"))
+            if(!strncmp(argv[i], "-n", 2))
                 lflag = 1;
-            if(!strcmp(argv[i], "-s"))
+            if(!strncmp(argv[i], "-s", 2))
                 sflag = 1;
-            if(!strcmp(argv[i], "-sn") || !strcmp(argv[i], "-ns")){
+            if(!strncmp(argv[i], "-sn", 3) || !strncmp(argv[i], "-ns", 3)){
                 sflag = 1;
                 lflag = 1;
             }
