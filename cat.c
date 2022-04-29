@@ -20,20 +20,21 @@ static char *basename(const char *path){
 
 }
 
-static int getbuf(const char *file){
+static long getbuf(const char *file){
 
     FILE* fptr = fopen(file, "r");
     if (fptr == NULL) {
         return -1;
     }
+    long prev=ftell(fptr);
     //Using fseek to move the file pointer to the end
     fseek(fptr, 0L, SEEK_END);
 
     //Using ftell to find the postion of the file pointer
     //In this case the pointer is at end, after using fseek
-    int res = ftell(fptr);
+    long res=ftell(fptr);
+    fseek(fptr,prev,SEEK_SET);
     fclose(fptr);
-  
     return res+1;
 }
 
@@ -55,7 +56,7 @@ static void cat(const char*file, const int lflag, const int sflag) {
     if(lflag)
         pline = "\033[31m%*d\033[0m  ";
     
-    const int buflen = getbuf(file);
+    long buflen = getbuf(file);
     
     FILE * fptr = fopen(file, "r");
     char* buffer = (char*)malloc(sizeof(char) * buflen);
