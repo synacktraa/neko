@@ -47,33 +47,22 @@ static int fexists(const char * file) {
 }
 
 
+static void cat(char*file, int lflag) {
 
-
-
-
-static void cat(char*file, int lflag, int sflag) {
-
-    char *pline = NULL;
-    if(lflag){
-        pline = "   %d  ";
-    }
-    int buffamt = getbuf(file);
+    char *pline = NULL, *end=NULL;
+    if(lflag)
+        pline = "%*d  ";
+    
+    int buflen = getbuf(file);
     
     FILE * fptr = fopen(file, "r");
-    char* buffer = (char*)malloc(sizeof(char) * buffamt);
+    char* buffer = (char*)malloc(sizeof(char) * buflen);
     
     if(buffer == NULL) exit(1);
 
-    int i = 1, s = 0;
-    while (fgets(buffer, buffamt, fptr) != NULL){
-        if (sflag){
-            label:
-                if(s > 1){
-                    if(strcspn(buffer, "\0"))
-                        goto label;
-                } else ++s;
-        }
-        fprintf(stdout, pline, i);
+    int i = 1;
+    while (fgets(buffer, buflen, fptr) != NULL){
+        fprintf(stdout, pline, 6, i);
         fprintf(stdout, "%s", buffer);
         ++i; 
     }
@@ -81,8 +70,8 @@ static void cat(char*file, int lflag, int sflag) {
 }
 
 int arg_validate(char* arg){
-    if(!strcmp(arg, "-n") ||
-       !strcmp(arg, "-s")){
+    //will be adding more flags
+    if(!strcmp(arg, "-n")){
             return 1;
         }
     return 0;
@@ -98,7 +87,7 @@ char *getf(int i, char**vec){
 int main(int argc, char**argv) {
 
     char *file = NULL;
-    int lflag = 0, sflag = 0;
+    int lflag = 0, Eflag = 0;
     if (argc == 2){
         if(!arg_validate(argv[1]))
             file = argv[1];
@@ -107,9 +96,6 @@ int main(int argc, char**argv) {
         for(i = 1; i < 3; i++){
             if(!strcmp(argv[i], "-n")){
                 lflag = 1;
-                break;
-            } else if(!strcmp(argv[i], "-s")){
-                sflag = 1;
                 break;
             }
         }
@@ -120,7 +106,7 @@ int main(int argc, char**argv) {
         fprintf(stderr, "%s: %s: No such file or directory", basename(argv[0]), file);
         return 1;
     }
-    cat(file, lflag, sflag);
+    cat(file, lflag);
     return 0;
 
 }
