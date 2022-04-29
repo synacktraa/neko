@@ -85,17 +85,30 @@ static int arg_validate(char* arg){
     return 0;
 }
 
+static void help(){
+    puts("Usage: cat [OPTION]... [FILE]...\
+        \nConcatenate FILE to standard output.\
+        \n\nOptions:\
+        \n    -n   number all output lines\
+        \n    -s   strip repeated empty output lines\
+        \n\nExamples:\
+        \n    cat -n file   Output file's contents with line numbers\
+        \n    cat -sn file  Output file's contents with line numbers after stripping repeated empty lines");
+}
 
 int main(int argc, char**argv) {
 
     char *file = NULL;
     int lflag = 0, sflag = 0;
     if (argc == 2){
-        if(!arg_validate(argv[1]))
+        if(!strcmp(argv[1], "-h")){
+            help();
+            return 0;
+        }
+        else if(!arg_validate(argv[1]))
             file = argv[1];
     } else if (argc > 2 || argc <= 4){
-        int i;
-        for(i = 1; i < argc; i++){
+        for(int i = 1; i < argc; i++){
             if(!strcmp(argv[i], "-n"))
                 lflag = 1;
             if(!strcmp(argv[i], "-s"))
@@ -109,9 +122,13 @@ int main(int argc, char**argv) {
         }
         
     }
+    else{
+        help();
+        return 1;
+    }
     char *exe = basename(argv[0]);
     if(!fexists(file)) {
-        fprintf(stderr, "\n%s: %s: No such file or directory", exe, file);
+        fprintf(stderr, "%s: %s: No such file or directory", exe, file);
         return 1;
     }
     free(exe);
