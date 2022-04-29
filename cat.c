@@ -69,7 +69,7 @@ static void cat(char*file, int lflag) {
     free(buffer);
 }
 
-int arg_validate(char* arg){
+static int arg_validate(char* arg){
     //will be adding more flags
     if(!strcmp(arg, "-n")){
             return 1;
@@ -77,12 +77,6 @@ int arg_validate(char* arg){
     return 0;
 }
 
-char *getf(int i, char**vec){
-    if(i==1)
-        return strdup(vec[2]);
-    else if (i==2)
-        return strdup(vec[1]);
-}
 
 int main(int argc, char**argv) {
 
@@ -99,13 +93,17 @@ int main(int argc, char**argv) {
                 break;
             }
         }
-        file = getf(i, argv);
+        if(i==1)
+            file = argv[2];
+        else if (i==2)
+            file = argv[1];
     }
-
+    char *exe = basename(argv[0]);
     if(!fexists(file)) {
-        fprintf(stderr, "%s: %s: No such file or directory", basename(argv[0]), file);
+        fprintf(stderr, "%s: %s: No such file or directory", exe, file);
         return 1;
     }
+    free(exe);
     cat(file, lflag);
     return 0;
 
