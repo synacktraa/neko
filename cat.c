@@ -2,6 +2,8 @@
 #include<stdlib.h>
 #include<string.h>
 
+#define BUFFER 128
+
 static char *basename(const char *path){
     char fsep = 0;
     #ifdef __unix__
@@ -97,9 +99,16 @@ static void help(){
 
 int main(int argc, char**argv) {
 
-    char *file = NULL;
+    char *file = NULL, inout[BUFFER];
     int lflag = 0, sflag = 0;
-    if (argc == 2){
+
+    if(argc == 1){
+        while(fgets(inout, 127, stdin)){
+            fputs(inout, stdout);
+        }
+        return 0;
+
+    } else if (argc == 2){
         if(!strncmp(argv[1], "-h", 2)){
             help();
             return 0;
