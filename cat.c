@@ -107,7 +107,7 @@ int main(int argc, char**argv) {
         }
         else if(!arg_validate(argv[1]))
             file = argv[1];
-    } else if (argc > 2 || argc <= 4){
+    } else if (argc > 2 && argc <= 4){
         for(int i = 1; i < argc; i++){
             if(!strcmp(argv[i], "-n"))
                 lflag = 1;
@@ -121,8 +121,7 @@ int main(int argc, char**argv) {
                 file = argv[i];
         }
         
-    }
-    else{
+    } else{
         help();
         return 1;
     }
