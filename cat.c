@@ -21,6 +21,19 @@ basename(const char *path){
 
 }
 
+static int 
+purge(char*data, int index, int length){
+
+    int i;
+    for (i = index; i < (length)-1; i++){
+        *(data+i) = *(data+i+1);
+    }
+    *(data+i) = '\0';
+    length--;
+    return length;
+
+}
+
 static long 
 getbuf(const char *file){
 
@@ -72,10 +85,17 @@ cat(const char*file, const int lflag, const int sflag) {
 
     rewind(fptr);
     while (fgets(buffer, buflen, fptr) != NULL){
-        if(sflag && (buffer[0] == 10 || buffer[0] == 13)){
-            if(s >= 1)
-                continue;
-            s++;
+        if(sflag){
+            int len = strlen(buffer);
+            if(s >= 1){ 
+                for(int j=0; j < len; j++){
+                    if (buffer[j] == 13)
+                        len = purge(buffer, j, len);
+                }
+                if(buffer[0] == 10 || buffer[0] == 13 || 
+                  (buffer[0]==9 && buffer[1]==10))
+                    continue;
+            } s++;
         }
         fprintf(stdout, pline, 6, ++i);
         fprintf(stdout, "%s", buffer);
