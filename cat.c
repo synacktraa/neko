@@ -122,7 +122,7 @@ main(int argc, char**argv) {
     int lflag = 0, sflag = 0;
 
     if(argc == 1){
-        while(fgets(inout, 127, stdin)){
+        while(fgets(inout, BUFSIZ, stdin)){
             fputs(inout, stdout);
         }
         return 0;
