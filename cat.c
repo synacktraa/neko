@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
+#include<ctype.h>
 
 static char*
 basename(const char *path){
@@ -19,18 +20,6 @@ basename(const char *path){
 
 }
 
-static int 
-purge(char*data, int index, int length){
-
-    int i;
-    for (i = index; i < (length)-1; i++){
-        *(data+i) = *(data+i+1);
-    }
-    *(data+i) = '\0';
-    length--;
-    return length;
-
-}
 
 static int 
 file_exists(const char * file) {
@@ -64,41 +53,37 @@ cat(const char*file, const int lflag, const int sflag) {
             ch = fgetc(fptr); //storing char in ch
             
             // if ch is not the end of file, buffer is appended with ch char value
-            if(ch != EOF) buffer[cursor++] = (char)ch; 
+            if(ch != EOF){
+                if(isprint(ch))
+                    buffer[cursor++] = (char)ch;
+            } 
 
             /* if cursor crosses current buffer size
                 it's doubled and new size gets reallocated */
             if(cursor >= buffsize - 1) { 
-                buffsize *=2;
+                buffsize <<=1;
                 buffer = (char*)realloc(buffer, buffsize);
             }
         } while(ch != EOF && ch != '\n'); // will continue until ch is not EOF and newline character
         
         // stripping repeated new lines
         if(sflag){
-            int len = strlen(buffer);
         
             if(s >= 1){ // first empty line is ignored :)
 
-                for(int j=0; j < len; j++){
-                    if (buffer[j] == 13) // removing CR from the buffer
-                        len = purge(buffer, j, len);
-                }
-
                 /* if it's an empty line, it will be ignored
                    just like my crush ignored me :/ */ 
-                if(buffer[0] == 10 || buffer[0] == 13 || 
-                  (buffer[0]==9 && buffer[1]==10))
+                if(buffer[0] == 0)
                     continue;
             } s++;
         }
         buffer[cursor] = '\0'; // don't forget null terminator you retard
 
         fprintf(stdout, pline, 6, ++i);
-        fprintf(stdout, "%s", buffer);  
+        fprintf(stdout, "%s\n", buffer);  
         
         //if buffers' first char is newline or CR, s is set to 0;
-        if((buffer[0] != 10 && buffer[0] != 13))
+        if((buffer[0] != 0))
             s = 0;     
         } while(ch != EOF); // while ch is not end of the file
         
@@ -109,8 +94,10 @@ cat(const char*file, const int lflag, const int sflag) {
 
 static int 
 arg_validate(const char* arg){
-    if(!strncmp(arg, "-n", 2)||
-       !strncmp(arg, "-s", 2)){
+    if(!strcmp(arg, "-n")||
+       !strcmp(arg, "-s")||
+       !strcmp(arg, "-sn")||
+       !strcmp(arg, "-ns")){
             return 1;
         }
     return 0;
@@ -141,7 +128,7 @@ main(int argc, char**argv) {
         return 0;
 
     } else if (argc == 2){
-        if(!strncmp(argv[1], "-h", 2)){
+        if(!strcmp(argv[1], "-h")){
             help();
             return 0;
         }
@@ -149,11 +136,11 @@ main(int argc, char**argv) {
             file = argv[1];
     } else if (argc > 2 && argc <= 4){
         for(int i = 1; i < argc; i++){
-            if(!strncmp(argv[i], "-n", 2))
+            if(!strcmp(argv[i], "-n"))
                 lflag = 1;
-            if(!strncmp(argv[i], "-s", 2))
+            if(!strcmp(argv[i], "-s"))
                 sflag = 1;
-            if(!strncmp(argv[i], "-sn", 3) || !strncmp(argv[i], "-ns", 3)){
+            if(!strcmp(argv[i], "-sn") || !strcmp(argv[i], "-ns")){
                 sflag = 1;
                 lflag = 1;
             }
@@ -165,7 +152,7 @@ main(int argc, char**argv) {
         help();
         return 1;
     }
-    
+
     if(!file_exists(file)) {
         char *exe = basename(argv[0]);
         fprintf(stderr, "%s: %s: No such file or directory", exe, file);
