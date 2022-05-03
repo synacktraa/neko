@@ -2,8 +2,6 @@
 #include<stdlib.h>
 #include<string.h>
 
-#define BUFFER 128
-
 static char*
 basename(const char *path){
     char fsep = 0;
@@ -34,28 +32,8 @@ purge(char*data, int index, int length){
 
 }
 
-static long 
-getbuf(const char *file){
-
-    FILE* fptr = fopen(file, "r");
-    if (fptr == NULL) {
-        return -1;
-    }
-    long prev=ftell(fptr);
-    //Using fseek to move the file pointer to the end
-    fseek(fptr, 0L, SEEK_END);
-
-    //Using ftell to find the postion of the file pointer
-    //In this case the pointer is at end, after using fseek
-    long res=ftell(fptr);
-    fseek(fptr,prev,SEEK_SET);
-    fclose(fptr);
-    return res+1;
-}
-
-
 static int 
-fexists(const char * file) {
+file_exists(const char * file) {
 
     FILE *fptr;
     if((fptr = fopen(file, "r")) != NULL) {
@@ -73,37 +51,61 @@ cat(const char*file, const int lflag, const int sflag) {
     if(lflag)
         pline = "\033[31m%*d\033[0m  ";
     
-    long buflen = getbuf(file);
-    
+    int buffsize = 1024;
     FILE * fptr = fopen(file, "r");
-    char* buffer = (char*)malloc(buflen);
+    char* buffer = (char*)malloc(buffsize);
     
     if(buffer == NULL) exit(EXIT_FAILURE);
-    memset(buffer, 0, buflen);
 
-    int i = 0, s = 0;
+    int i = 0, s = 0, ch, cursor = 0;
+    do { 
+        cursor = 0;
+        do { 
+            ch = fgetc(fptr); //storing char in ch
+            
+            // if ch is not the end of file, buffer is appended with ch char value
+            if(ch != EOF) buffer[cursor++] = (char)ch; 
 
-    rewind(fptr);
-    while (fgets(buffer, buflen, fptr) != NULL){
+            /* if cursor crosses current buffer size
+                it's doubled and new size gets reallocated */
+            if(cursor >= buffsize - 1) { 
+                buffsize *=2;
+                buffer = (char*)realloc(buffer, buffsize);
+            }
+        } while(ch != EOF && ch != '\n'); // will continue until ch is not EOF and newline character
+        
+        // stripping repeated new lines
         if(sflag){
             int len = strlen(buffer);
-            if(s >= 1){ 
+        
+            if(s >= 1){ // first empty line is ignored :)
+            
                 for(int j=0; j < len; j++){
-                    if (buffer[j] == 13)
+                    if (buffer[j] == 13) // removing CR from the buffer
                         len = purge(buffer, j, len);
                 }
+
+                /* if it's an empty line, it will be ignored
+                   just like my crush ignored me :/ */ 
                 if(buffer[0] == 10 || buffer[0] == 13 || 
                   (buffer[0]==9 && buffer[1]==10))
                     continue;
             } s++;
         }
+        buffer[cursor] = '\0'; // don't forget null terminator you retard
+
         fprintf(stdout, pline, 6, ++i);
-        fprintf(stdout, "%s", buffer);
+        fprintf(stdout, "%s", buffer);  
+        
+        //if buffers' first char is newline or CR, s is set to 0;
         if((buffer[0] != 10 && buffer[0] != 13))
-            s = 0;
-    } 
-    free(buffer);
-}
+            s = 0;     
+        } while(ch != EOF); // while ch is not end of the file
+        
+        fclose(fptr); //always close the file pointer BAKA ^_^         
+        free(buffer); // and don't ever forget to free dynamically allocated memory :{}
+    }
+    
 
 static int 
 arg_validate(const char* arg){
@@ -129,7 +131,7 @@ help(){
 int 
 main(int argc, char**argv) {
 
-    char *file = NULL, inout[BUFFER];
+    char *file = NULL, inout[BUFSIZ];
     int lflag = 0, sflag = 0;
 
     if(argc == 1){
@@ -164,7 +166,7 @@ main(int argc, char**argv) {
         return 1;
     }
     char *exe = basename(argv[0]);
-    if(!fexists(file)) {
+    if(!file_exists(file)) {
         fprintf(stderr, "%s: %s: No such file or directory", exe, file);
         return 1;
     }
