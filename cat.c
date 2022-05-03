@@ -47,12 +47,12 @@ file_exists(const char * file) {
 static void 
 cat(const char*file, const int lflag, const int sflag) {
 
-    char *pline = NULL;
+    char *pline = "";
     if(lflag)
         pline = "\033[31m%*d\033[0m  ";
     
     int buffsize = 1024;
-    FILE * fptr = fopen(file, "r");
+    FILE * fptr = fopen(file, "rb");
     char* buffer = (char*)malloc(buffsize);
     
     if(buffer == NULL) exit(EXIT_FAILURE);
@@ -79,7 +79,7 @@ cat(const char*file, const int lflag, const int sflag) {
             int len = strlen(buffer);
         
             if(s >= 1){ // first empty line is ignored :)
-            
+
                 for(int j=0; j < len; j++){
                     if (buffer[j] == 13) // removing CR from the buffer
                         len = purge(buffer, j, len);
@@ -104,7 +104,7 @@ cat(const char*file, const int lflag, const int sflag) {
         
         fclose(fptr); //always close the file pointer BAKA ^_^         
         free(buffer); // and don't ever forget to free dynamically allocated memory :{}
-    }
+}
     
 
 static int 
@@ -165,12 +165,13 @@ main(int argc, char**argv) {
         help();
         return 1;
     }
-    char *exe = basename(argv[0]);
+    
     if(!file_exists(file)) {
+        char *exe = basename(argv[0]);
         fprintf(stderr, "%s: %s: No such file or directory", exe, file);
+        free(exe);
         return 1;
     }
-    free(exe);
     cat(file, lflag, sflag);
     return 0;
 
