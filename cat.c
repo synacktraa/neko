@@ -71,21 +71,19 @@ cat(const char*file, const int lflag, const int sflag) {
         // stripping repeated new lines
         if(sflag){
         
-            if(s >= 1){ // first empty line is ignored :)
+            if(s >=1 && !*buffer){ // first empty line is ignored :)
 
                 /* if it's an empty line, it will be ignored
                    just like my crush ignored me :/ */ 
-                if(buffer[0] == 0)
-                    continue;
+                continue;
             } s++;
         }
         buffer[cursor] = '\0'; // don't forget null terminator you retard
-
         fprintf(stdout, pline, 6, ++i);
         fprintf(stdout, "%s\n", buffer);  
         
         //if buffers' first char is newline or CR, s is set to 0;
-        if((buffer[0] != 0))
+        if(*buffer)
             s = 0;     
         } while(ch != EOF); // while ch is not end of the file
         
