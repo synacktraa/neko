@@ -56,7 +56,7 @@ cat(const char*file, const int lflag, const int sflag) {
             
             // if ch is not the end of file, buffer is appended with ch char value
             if(ch != EOF){
-                if(isprint(ch))
+                if(isprint(ch) || ch == '\t')
                     buffer[cursor++] = (char)ch;
             } 
 
