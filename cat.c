@@ -3,6 +3,8 @@
 #include<string.h>
 #include<ctype.h>
 
+#define BUFSIZE 1024
+
 static char*
 basename(const char *path){
     char fsep = 0;
@@ -118,13 +120,14 @@ help(){
 int 
 main(int argc, char**argv) {
 
-    char *file = NULL, inout[BUFSIZ];
+    char *file = NULL, buffer[BUFSIZE];
     int lflag = 0, sflag = 0;
 
     if(argc == 1){
-        while(fgets(inout, BUFSIZ, stdin)){
-            fputs(inout, stdout);
+        while(fgets(buffer, BUFSIZE, stdin)){
+            fputs(buffer, stdout);
         }
+
         return 0;
 
     } else if (argc == 2){
