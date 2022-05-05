@@ -48,9 +48,10 @@ cat(const char*file, const int lflag, const int sflag) {
     
     if(buffer == NULL) exit(EXIT_FAILURE);
 
-    int i = 0, s = 0, ch, cursor = 0;
+    int i = 0, s = 0, ch, cursor = 0, lcheck;
     do { 
         cursor = 0;
+        lcheck = 0;
         do { 
             ch = fgetc(fptr); //storing char in ch
             
@@ -59,36 +60,41 @@ cat(const char*file, const int lflag, const int sflag) {
                 if(isprint(ch) || ch == '\t')
                     buffer[cursor++] = (char)ch;
             } 
-
             /* if cursor crosses current buffer size
                 it's doubled and new size gets reallocated */
             if(cursor >= buffsize - 1) { 
                 buffsize <<=1;
                 buffer = (char*)realloc(buffer, buffsize);
             }
+
+
         } while(ch != EOF && ch != '\n'); // will continue until ch is not EOF and newline character
         
         // stripping repeated new lines
         if(sflag){
-        
-            if(s >=1 && !*buffer){ // first empty line is ignored :)
 
+            for(size_t c = 0; c <= strlen(buffer); c++)
+                if(isspace(c[buffer]))
+                    lcheck++;
+
+            if(s >=1){ // first empty line is ignored :)
+                if(!*buffer || lcheck == cursor)
                 /* if it's an empty line, it will be ignored
                    just like my crush ignored me :/ */ 
-                continue;
+                    continue;
             } s++;
         }
         buffer[cursor] = '\0'; // don't forget null terminator you retard
         fprintf(stdout, pline, 6, ++i);
-        fprintf(stdout, "%s\n", buffer);  
+        puts(buffer);  
         
         //if buffers' first char is newline or CR, s is set to 0;
-        if(*buffer)
-            s = 0;     
-        } while(ch != EOF); // while ch is not end of the file
-        
-        fclose(fptr); //always close the file pointer BAKA ^_^         
-        free(buffer); // and don't ever forget to free dynamically allocated memory :{}
+        if(*buffer) s=0;     
+        memset(buffer, 0, strlen(buffer));
+
+    } while(ch != EOF); // while ch is not end of the file
+    fclose(fptr); //always close the file pointer BAKA ^_^         
+    free(buffer); // and don't ever forget to free dynamically allocated memory :{}
 }
     
 
