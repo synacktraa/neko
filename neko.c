@@ -111,14 +111,17 @@ arg_validate(const char* arg){
 
 static void 
 help(){
-    puts("Usage: cat [OPTION]... [FILE]...\
+    puts("Usage: neko [OPTION]... [FILE]...\
         \nConcatenate FILE to standard output.\
         \n\nOptions:\
         \n    -n   number all output lines\
         \n    -s   strip repeated empty output lines\
         \n\nExamples:\
-        \n    cat -n file   Output file's contents with line numbers\
-        \n    cat -sn file  Output file's contents with line numbers after stripping repeated empty lines");
+        \n    neko -n file   Output file contents with line numbers\
+        \n    neko > file    takes input from STDIN and redirects it to file\
+        \n    neko >> file   takes input from STDIN and appends it to file\
+        \n    neko -s file   Output file contents after stripping repeated empty lines\
+        \n    neko -sn file  Output file contents with line numbers after stripping repeated empty lines");
 }
 
 int 
