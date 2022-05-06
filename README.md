@@ -34,7 +34,7 @@ Output:
 
 ```sh
 Usage: neko [OPTION]... [FILE]...
-Connekoenate FILE to standard output.
+Concatenate FILE to standard output.
 
 Options:
     -n   number all output lines
