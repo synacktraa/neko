@@ -42,7 +42,7 @@ cat(const char*file, const int lflag, const int sflag) {
     if(lflag)
         pline = "\033[31m%*d\033[0m  ";
     
-    int buffsize = 1024;
+    int buffsize = 512;
     FILE * fptr = fopen(file, "rb");
     char* buffer = (char*)malloc(buffsize);
     
@@ -84,17 +84,22 @@ cat(const char*file, const int lflag, const int sflag) {
                     continue;
             } s++;
         }
+
         buffer[cursor] = '\0'; // don't forget null terminator you retard
         fprintf(stdout, pline, 6, ++i);
-        puts(buffer);  
+        printf("%*s", (int)strlen(buffer)+1, buffer);
+        if (ch != EOF){
+            printf("\n");
+        }
         
         //if buffers' first char is newline or CR, s is set to 0;
         if(*buffer) s=0;     
         memset(buffer, 0, strlen(buffer));
 
     } while(ch != EOF); // while ch is not end of the file
+    printf("\n");
+    free(buffer);
     fclose(fptr); //always close the file pointer BAKA ^_^         
-    free(buffer); // and don't ever forget to free dynamically allocated memory :{}
 }
     
 
